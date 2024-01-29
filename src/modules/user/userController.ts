@@ -7,13 +7,28 @@ export class UserController {
 	public static async signupUser(req: Request, res: Response) {
 		try {
 			const { first_name, last_name, mobile_number } = req.body;
-			Validator.checkForEmptyInputs(mobile_number, first_name, last_name);
-			Validator.validateInputs(mobile_number, first_name, last_name);
+			if (!first_name || !last_name || !mobile_number) {
+				throw new Error("All fields are required");
+			}
+			const inputErrors = Validator.validateInputs(
+				mobile_number,
+				first_name,
+				last_name
+			);
+
+			if (inputErrors.length > 0) {
+				return Res.sendResponse({
+					res,
+					status: 400,
+					success: false,
+					error: inputErrors,
+				});
+			}
 			const userExists = await User.findOne({ mobile_number });
 			if (userExists) {
 				throw new Error("User with this number already exists");
 			}
-			const user = await User.create(first_name, last_name, mobile_number);
+			const user = await User.create({ first_name, last_name, mobile_number });
 			Res.sendResponse({
 				res,
 				status: 200,
@@ -22,23 +37,34 @@ export class UserController {
 				data: user,
 			});
 		} catch (error: any) {
-			Res.sendResponse({ res, status: 500, success: false, error: error });
+			Res.sendResponse({ res, status: 500, success: false, error });
 		}
 	}
 
 	public static async loginUser(req: Request, res: Response) {
 		try {
 			const { mobile_number } = req.body;
-			Validator.checkForEmptyInputs(mobile_number);
-			Validator.validateInputs(mobile_number);
+			if (!mobile_number) throw new Error("All fields are required");
+
+			const inputErrors = Validator.validateInputs(mobile_number);
+
+			if (inputErrors.length > 0) {
+				return Res.sendResponse({
+					res,
+					status: 400,
+					success: false,
+					error: inputErrors,
+				});
+			}
+
 			const user = await User.findOne({ mobile_number });
 			if (!user) {
-				Res.sendResponse({
+				return Res.sendResponse({
 					res,
 					status: 404,
 					success: false,
 					error:
-						"User with this mobile number does not exist.\n Try signing up instead",
+						"User with this mobile number does not exist. Try signing up instead",
 				});
 			}
 			Res.sendResponse({
@@ -49,7 +75,7 @@ export class UserController {
 				data: user,
 			});
 		} catch (error: any) {
-			Res.sendResponse({ res, status: 500, success: false, error: error });
+			Res.sendResponse({ res, status: 500, success: false, error });
 		}
 	}
 }

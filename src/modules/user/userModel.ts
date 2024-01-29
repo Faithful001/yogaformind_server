@@ -12,7 +12,7 @@ const UserSchema = new Schema({
 		required: true,
 	},
 	mobile_number: {
-		type: Number,
+		type: String,
 		unique: true,
 		required: true,
 	},

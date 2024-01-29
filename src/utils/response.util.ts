@@ -10,7 +10,7 @@ export class Response {
 		switch (status) {
 			case 500:
 				return res.status(status).json({
-					sucess: success,
+					success: success,
 					error: error ?? `An error occured.`,
 					data: null,
 				});

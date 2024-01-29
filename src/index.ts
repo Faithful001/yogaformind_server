@@ -1,11 +1,22 @@
 import express from "express";
-import { config } from "dotenv";
+import cors from "cors";
 import { connectToDB } from "./config/db.config";
+import userRoute from "./modules/user/userRoute";
+import { config } from "dotenv";
 config();
 
 const app = express();
 
+const corsOptions = {
+	origin: ["http://localhost:5173"],
+	method: ["GET", "POST", "PATCH", "DELETE"],
+	credentials: true,
+};
+app.use(cors(corsOptions));
+
 app.use(express.json());
+
+app.use("/api/auth/", userRoute);
 
 const PORT = process.env.PORT;
 
