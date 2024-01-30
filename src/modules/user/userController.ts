@@ -6,12 +6,13 @@ import { Request, Response } from "express";
 export class UserController {
 	public static async signupUser(req: Request, res: Response) {
 		try {
-			const { first_name, last_name, mobile_number } = req.body;
+			const { first_name, last_name, mobile_number, country } = req.body;
 			if (!first_name || !last_name || !mobile_number) {
 				throw new Error("All fields are required");
 			}
 			const inputErrors = Validator.validateInputs(
 				mobile_number,
+				country,
 				first_name,
 				last_name
 			);
@@ -28,7 +29,12 @@ export class UserController {
 			if (userExists) {
 				throw new Error("User with this number already exists");
 			}
-			const user = await User.create({ first_name, last_name, mobile_number });
+			const user = await User.create({
+				first_name,
+				last_name,
+				mobile_number,
+				country,
+			});
 			Res.sendResponse({
 				res,
 				status: 200,
@@ -43,10 +49,11 @@ export class UserController {
 
 	public static async loginUser(req: Request, res: Response) {
 		try {
-			const { mobile_number } = req.body;
-			if (!mobile_number) throw new Error("All fields are required");
+			const { mobile_number, country } = req.body;
+			if (!mobile_number || !country)
+				throw new Error("All fields are required");
 
-			const inputErrors = Validator.validateInputs(mobile_number);
+			const inputErrors = Validator.validateInputs(mobile_number, country);
 
 			if (inputErrors.length > 0) {
 				return Res.sendResponse({

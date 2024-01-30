@@ -16,7 +16,11 @@ const UserSchema = new Schema({
 		unique: true,
 		required: true,
 	},
-});
+	country:{
+		type: String,
+		required: true
+	}
+}, {timestamps: true});
 
 const model = mongoose.model("User", UserSchema, "yoga_users");
 
