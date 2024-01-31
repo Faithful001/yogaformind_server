@@ -9,14 +9,13 @@ import { Request, Response } from "express";
 export class UserController {
 	public static async signupUser(req: Request, res: Response) {
 		try {
-			const { first_name, last_name, mobile_number, country } = req.body;
+			const { first_name, last_name, mobile_number } = req.body;
 
 			if (!first_name || !last_name || !mobile_number) {
 				throw new Error("All fields are required");
 			}
 			const inputError = Validator.validateInputs(
 				mobile_number,
-				country,
 				first_name,
 				last_name
 			);
@@ -33,21 +32,21 @@ export class UserController {
 			if (userExists) {
 				throw new Error("User with this number already exists");
 			}
+			const stringifiedOtp =
+				userExists && (await handleOtpSendingFlow(userExists));
 			//send the otp here / all the otp logic
-			const hashedOtp = handleOtpSendingFlow(userExists);
 
 			const user = await User.create({
 				first_name,
 				last_name,
 				mobile_number,
-				country,
 			});
 			Res.sendResponse({
 				res,
 				status: 200,
 				success: true,
-				message: "Signup successful",
-				data: { user, hashedOtp },
+				message: "Signup successful. An otp was sent to your mobile number",
+				data: { user, stringifiedOtp },
 			});
 		} catch (error: any) {
 			Res.sendResponse({
@@ -61,12 +60,12 @@ export class UserController {
 
 	public static async loginUser(req: Request, res: Response) {
 		try {
-			const { mobile_number, country } = req.body;
-			if (!mobile_number || !country) {
+			const { mobile_number } = req.body;
+			if (!mobile_number) {
 				throw new Error("All fields are required");
 			}
 
-			const inputError = Validator.validateInputs(mobile_number, country);
+			const inputError = Validator.validateInputs(mobile_number);
 
 			if (inputError.length > 0) {
 				return Res.sendResponse({
@@ -76,7 +75,6 @@ export class UserController {
 					error: inputError,
 				});
 			}
-
 			const user = await User.findOne({ mobile_number });
 			if (!user) {
 				return Res.sendResponse({
@@ -87,12 +85,13 @@ export class UserController {
 						"User with this mobile number does not exist. Try signing up instead",
 				});
 			}
+			const stringifiedOtp = user && (await handleOtpSendingFlow(user));
 			Res.sendResponse({
 				res,
 				status: 200,
 				success: true,
-				message: "User found. Verify otp",
-				data: user,
+				message: "User found. An otp was sent to your mobile number",
+				data: { user, stringifiedOtp },
 			});
 		} catch (error: any) {
 			return Res.sendResponse({
