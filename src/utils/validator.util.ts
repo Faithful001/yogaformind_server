@@ -4,10 +4,10 @@ export class Validator {
 		country: string,
 		first_name?: string,
 		last_name?: string
-	): string[] {
+	): string {
 		const errors: string[] = [];
 
-		const mobileNumber = /^[+]?\d{10,11}$/.test(mobile_number);
+		const mobileNumber = /^[+]?\d{10,14}$/.test(mobile_number);
 		const countryName = /[A-Za-z]+$/.test(country);
 		const firstName = /^[A-Za-z]+$/.test(first_name);
 		const lastName = /^[A-Za-z]+$/.test(last_name);
@@ -25,6 +25,6 @@ export class Validator {
 			errors.push("Last Name must contain letters only");
 		}
 
-		return errors;
+		return errors.join(",");
 	}
 }

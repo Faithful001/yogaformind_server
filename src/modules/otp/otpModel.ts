@@ -20,4 +20,4 @@ const OtpSchema = new Schema({
 
 const model = mongoose.model("Otp", OtpSchema, "yoga_users_otp");
 
-module.exports = model;
+export default model;

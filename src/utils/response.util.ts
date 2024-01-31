@@ -7,49 +7,52 @@ export class Response {
 		message = "",
 		data = null,
 	}) {
+		let responseBody;
+
 		switch (status) {
 			case 500:
-				return res.status(status).json({
-					success: success,
-					error: error ?? `An error occured.`,
+				responseBody = {
+					success,
+					error: error ?? `An error occurred.`,
 					data: null,
-				});
+				};
+				break;
 			case 400:
-				return res.status(status).json({
-					success: success,
-					error: error ?? `Something went wrong.`,
-					data: null,
-				});
+				responseBody = { success, error: error ?? `Bad request.`, data: null };
+				break;
 			case 401:
-				return res.status(status).json({
-					success: success,
-					error: error ?? `User is unauthorized.`,
-					data: null,
-				});
+				responseBody = { success, error: error ?? `Unauthorized.`, data: null };
+				break;
 			case 404:
-				return res.status(status).json({
-					success: success,
+				responseBody = {
+					success,
 					error: error ?? `Resource not found.`,
 					data: null,
-				});
+				};
+				break;
 			case 200:
-				return res.status(status).json({
-					success: success,
+				responseBody = {
+					success,
 					message: message ?? "Request successful",
-					data: data,
-				});
+					data,
+				};
+				break;
 			case 201:
-				return res.status(status).json({
-					success: success,
+				responseBody = {
+					success,
 					message: message ?? "Resource created successfully",
-					data: data,
-				});
+					data,
+				};
+				break;
 			default:
-				return res.status(status).json({
+				responseBody = {
 					success: false,
 					error: `Unexpected status code: ${status}`,
 					data: null,
-				});
+				};
+				break;
 		}
+
+		return res.status(status).json(responseBody);
 	}
 }

@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
 import { connectToDB } from "./config/db.config";
-import userRoute from "./modules/user/userRoute";
+import userRouter from "./modules/user/userRoute";
+import otpRouter from "./modules/otp/otpRoute";
 import { config } from "dotenv";
 config();
 
@@ -16,7 +17,8 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 
-app.use("/api/auth/", userRoute);
+app.use("/api/auth/", userRouter);
+app.use("/api/auth/", otpRouter);
 
 const PORT = process.env.PORT;
 
